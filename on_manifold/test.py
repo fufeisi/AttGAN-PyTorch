@@ -1,7 +1,7 @@
 import torch.utils.data as data
 import argparse
 import torch
-from data import CelebA
+from ..data import CelebA
 from helpers import Progressbar
 from on_manifold.model import Classifier
 import torch.optim as optim
