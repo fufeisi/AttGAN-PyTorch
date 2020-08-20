@@ -100,5 +100,4 @@ for epoch in range(args.epochs):
         classifier.zero_grad()
         c_loss.backward()
         optim_c.step()
-        print('c_loss:', c_loss.item())
-        print('acc:', acc)
+        progressbar.say(epoch=epoch, c_loss=c_loss.item(), acc=acc)
