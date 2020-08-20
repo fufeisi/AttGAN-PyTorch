@@ -31,5 +31,5 @@ class Classifier(nn.Module):
         return self.fc_cls(h)
 
 
-classifier = Classifier()
-summary(classifier, [(3, 128, 128)], batch_size=4, device='cuda')
+# classifier = Classifier()
+# summary(classifier, [(3, 128, 128)], batch_size=4, device='cuda')
