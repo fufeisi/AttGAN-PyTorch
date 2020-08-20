@@ -88,6 +88,8 @@ for epoch in range(args.epochs):
     # and half the lr in the last 100 epochs
     lr = args.lr_base / (10 ** (epoch // 100))
     for img_a, att_a in progressbar(train_dataloader):
+        img_a = img_a.cuda() if args.gpu else img_a
+        att_a = att_a.cuda() if args.gpu else att_a
         att_a = att_a.type(torch.float)
         classifier.train()
         c_loss = F.binary_cross_entropy_with_logits(classifier(img_a), att_a)
