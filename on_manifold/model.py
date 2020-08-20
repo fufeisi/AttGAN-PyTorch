@@ -32,4 +32,4 @@ class Classifier(nn.Module):
 
 
 classifier = Classifier()
-summary(classifier, (3, 128, 128))
+summary(classifier, [(3, 128, 128)], batch_size=4, device='cuda')
