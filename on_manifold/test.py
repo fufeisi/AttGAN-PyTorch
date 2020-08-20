@@ -93,8 +93,12 @@ for epoch in range(args.epochs):
         att_a = att_a.cuda() if args.gpu else att_a
         att_a = att_a.type(torch.float)
         classifier.train()
-        c_loss = F.binary_cross_entropy_with_logits(classifier(img_a), att_a)
+        output = classifier(img_a)
+        prediction = (output >= 0.5)
+        acc = (prediction == att_a).sum().item()/(len(att_a)*len(attrs_default))
+        c_loss = F.binary_cross_entropy_with_logits(output, att_a)
         classifier.zero_grad()
         c_loss.backward()
         optim_c.step()
         print('c_loss:', c_loss.item())
+        print('acc:', acc)
