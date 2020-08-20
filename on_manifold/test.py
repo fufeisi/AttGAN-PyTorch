@@ -59,7 +59,7 @@ def parse(args=None):
 
     parser.add_argument('--save_interval', dest='save_interval', type=int, default=1000)
     parser.add_argument('--sample_interval', dest='sample_interval', type=int, default=1000)
-    parser.add_argument('--gpu', dest='gpu', action='store_true')
+    parser.add_argument('--gpu', dest='gpu', action='store_true', type=str, default='gpu')
     parser.add_argument('--multi_gpu', dest='multi_gpu', action='store_true')
     return parser.parse_args(args)
 
@@ -82,6 +82,7 @@ valid_dataloader = data.DataLoader(
 args.lr_base = args.lr
 progressbar = Progressbar()
 classifier = Classifier()
+if args.gpu: classifier.cuda()
 optim_c = optim.Adam(classifier.parameters(), lr=args.lr, betas=args.betas)
 for epoch in range(args.epochs):
     # train with base lr in the first 100 epochs
