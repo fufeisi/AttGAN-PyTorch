@@ -86,7 +86,7 @@ class Generator(nn.Module):
 class Discriminators(nn.Module):
     # No instancenorm in fcs in source code, which is different from paper.
     def __init__(self, dim=64, norm_fn='instancenorm', acti_fn='lrelu',
-                 fc_dim=1024, fc_norm_fn='none', fc_acti_fn='lrelu', n_layers=5, img_size=128):
+                 fc_dim=1024, fc_norm_fn='none', fc_acti_fn='lrelu', n_attrs=13, n_layers=5, img_size=128):
         super(Discriminators, self).__init__()
         self.f_size = img_size // 2**n_layers
         
@@ -105,7 +105,7 @@ class Discriminators(nn.Module):
         )
         self.fc_cls = nn.Sequential(
             LinearBlock(1024 * self.f_size * self.f_size, fc_dim, fc_norm_fn, fc_acti_fn),
-            LinearBlock(fc_dim, 13, 'none', 'none')
+            LinearBlock(fc_dim, n_attrs, 'none', 'none')
         )
     
     def forward(self, x):
@@ -143,7 +143,7 @@ class AttGAN():
         
         self.D = Discriminators(
             args.dis_dim, args.dis_norm, args.dis_acti,
-            args.dis_fc_dim, args.dis_fc_norm, args.dis_fc_acti, args.dis_layers, args.img_size
+            args.dis_fc_dim, args.dis_fc_norm, args.dis_fc_acti, args.n_attrs, args.dis_layers, args.img_size
         )
         self.D.train()
         if self.gpu: self.D.cuda()
