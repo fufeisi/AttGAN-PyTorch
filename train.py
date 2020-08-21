@@ -169,12 +169,12 @@ for epoch in range(args.epochs):
             # To save storage space, I only checkpoint the weights of G.
             # If you'd like to keep weights of G, D, optim_G, optim_D,
             # please use save() instead of saveG().
-            attgan.saveG(os.path.join(
-                'output', args.experiment_name, 'checkpoint', 'weights.{:d}.pth'.format(epoch)
-            ))
-            # attgan.save(os.path.join(
+            # attgan.saveG(os.path.join(
             #     'output', args.experiment_name, 'checkpoint', 'weights.{:d}.pth'.format(epoch)
             # ))
+            attgan.save(os.path.join(
+                'output', args.experiment_name, 'checkpoint', 'weights.{:d}.pth'.format(epoch)
+            ))
         if (it+1) % args.sample_interval == 0:
             attgan.eval()
             with torch.no_grad():
