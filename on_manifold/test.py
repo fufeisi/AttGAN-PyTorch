@@ -125,6 +125,6 @@ for epoch in range(args.epochs):
         optim_c.step()
         progressbar.say(epoch=epoch, c_loss=c_loss.item(), acc=acc)
 
-        torch.save(classifier.state_dict(), os.path.join(
-            'output_classifier', args.experiment_name, 'checkpoint', 'weights.{:d}.pth'.format(epoch)
-        ))
+    torch.save(classifier.state_dict(), os.path.join(
+        'output_classifier', args.experiment_name, 'checkpoint', 'weights.{:d}.pth'.format(epoch)
+    ))
