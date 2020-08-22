@@ -102,11 +102,10 @@ fixed_att_a = fixed_att_a.cuda() if use_gpu else fixed_att_a
 fixed_att_a = fixed_att_a.type(torch.float)
 sample_att_b_list = [fixed_att_a]
 
-it = 0
-it_per_epoch = len(train_dataset) // args.batch_size
-for epoch in range(1, args.epochs+1):
+for epoch in range(args.epochs):
     # train with base lr in the first 100 epochs
     # and half the lr in the last 100 epochs
+    total = correct = 0
     lr = args.lr_base / (10 ** (epoch // 100))
     for img_a, att_a in progressbar(train_dataloader):
         classifier.train()
@@ -115,7 +114,9 @@ for epoch in range(1, args.epochs+1):
         att_a = att_a.type(torch.float)
         output = classifier(img_a)
         prediction = (output >= 0.5)
-        acc = (prediction == att_a).sum().item()/(len(att_a)*len(attrs_default))
+        correct += (prediction == att_a).sum().item()
+        total += len(att_a) * len(attrs_default)
+        acc = correct / total
         c_loss = F.binary_cross_entropy_with_logits(output, att_a)
         classifier.zero_grad()
         c_loss.backward()
