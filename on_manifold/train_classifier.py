@@ -62,12 +62,12 @@ def parse(args=None):
 
     parser.add_argument('--save_interval', dest='save_interval', type=int, default=5)
     parser.add_argument('--sample_interval', dest='sample_interval', type=int, default=5)
-    parser.add_argument('--gpu', dest='gpu', action='store_true')
     parser.add_argument('--multi_gpu', dest='multi_gpu', action='store_true')
     parser.add_argument('--experiment_name', dest='experiment_name', default='classifier_eyeglass_and_male')
     return parser.parse_args(args)
 
 
+use_gpu = torch.cuda.is_available()
 attrs_default = ['Eyeglasses', 'Male']
 args = parse()
 print(args)
@@ -92,13 +92,13 @@ valid_dataloader = data.DataLoader(
 print('Training images:', len(train_dataset), '/', 'Validating images:', len(valid_dataset))
 
 classifier = Classifier(n_attrs=len(attrs_default))
-if args.gpu: classifier.cuda()
+if use_gpu: classifier.cuda()
 optim_c = optim.Adam(classifier.parameters(), lr=args.lr, betas=args.betas)
 progressbar = Progressbar()
 
 fixed_img_a, fixed_att_a = next(iter(valid_dataloader))
-fixed_img_a = fixed_img_a.cuda() if args.gpu else fixed_img_a
-fixed_att_a = fixed_att_a.cuda() if args.gpu else fixed_att_a
+fixed_img_a = fixed_img_a.cuda() if use_gpu else fixed_img_a
+fixed_att_a = fixed_att_a.cuda() if use_gpu else fixed_att_a
 fixed_att_a = fixed_att_a.type(torch.float)
 sample_att_b_list = [fixed_att_a]
 
@@ -110,8 +110,8 @@ for epoch in range(1, args.epochs+1):
     lr = args.lr_base / (10 ** (epoch // 100))
     for img_a, att_a in progressbar(train_dataloader):
         classifier.train()
-        img_a = img_a.cuda() if args.gpu else img_a
-        att_a = att_a.cuda() if args.gpu else att_a
+        img_a = img_a.cuda() if use_gpu else img_a
+        att_a = att_a.cuda() if use_gpu else att_a
         att_a = att_a.type(torch.float)
         output = classifier(img_a)
         prediction = (output >= 0.5)
