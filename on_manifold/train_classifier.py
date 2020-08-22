@@ -91,7 +91,7 @@ valid_dataloader = data.DataLoader(
 )
 print('Training images:', len(train_dataset), '/', 'Validating images:', len(valid_dataset))
 
-classifier = Classifier()
+classifier = Classifier(n_attrs=len(attrs_default))
 if args.gpu: classifier.cuda()
 optim_c = optim.Adam(classifier.parameters(), lr=args.lr, betas=args.betas)
 progressbar = Progressbar()
