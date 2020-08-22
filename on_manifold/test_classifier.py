@@ -2,15 +2,13 @@ import sys
 sys.path.append("..")
 import datetime
 import os
-from os.path import join
 import torch.utils.data as data
 import argparse
 import torch
 from data import CelebA
 from helpers import Progressbar
 from on_manifold.model import Classifier
-import torch.optim as optim
-import torch.nn.functional as F
+from utils import find_model
 
 
 def parse(args=None):
@@ -62,26 +60,18 @@ def parse(args=None):
 
     parser.add_argument('--save_interval', dest='save_interval', type=int, default=1000)
     parser.add_argument('--sample_interval', dest='sample_interval', type=int, default=1000)
-    parser.add_argument('--gpu', dest='gpu', action='store_true')
     parser.add_argument('--multi_gpu', dest='multi_gpu', action='store_true')
     parser.add_argument('--experiment_name', dest='experiment_name', default=datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"))
     return parser.parse_args(args)
 
 
-attrs_default = [
-    'Bald', 'Bangs', 'Black_Hair', 'Blond_Hair', 'Brown_Hair', 'Bushy_Eyebrows',
-    'Eyeglasses', 'Male', 'Mouth_Slightly_Open', 'Mustache', 'No_Beard', 'Pale_Skin', 'Young']
+use_gpu = torch.cuda.is_available()
+device = torch.device('cuda' if use_gpu else 'cpu')
+
+attrs_default = ['Bald', 'Bangs', 'Black_Hair', 'Blond_Hair', 'Brown_Hair', 'Bushy_Eyebrows',
+                 'Eyeglasses', 'Male', 'Mouth_Slightly_Open', 'Mustache', 'No_Beard', 'Pale_Skin', 'Young']
 args = parse()
 print(args)
-
-args.lr_base = args.lr
-args.n_attrs = len(args.attrs)
-args.betas = (args.beta1, args.beta2)
-
-os.makedirs(join('output_classifier', args.experiment_name), exist_ok=True)
-os.makedirs(join('output_classifier', args.experiment_name, 'checkpoint'), exist_ok=True)
-os.makedirs(join('output_classifier', args.experiment_name, 'sample_training'), exist_ok=True)
-
 train_dataset = CelebA(args.data_path, args.attr_path, args.img_size, 'train', args.attrs)
 valid_dataset = CelebA(args.data_path, args.attr_path, args.img_size, 'valid', args.attrs)
 train_dataloader = data.DataLoader(
@@ -92,39 +82,22 @@ valid_dataloader = data.DataLoader(
     valid_dataset, batch_size=args.n_samples, num_workers=args.num_workers,
     shuffle=False, drop_last=False
 )
-print('Training images:', len(train_dataset), '/', 'Validating images:', len(valid_dataset))
+
+print('Testing images:', len(valid_dataset))
 
 classifier = Classifier()
-if args.gpu: classifier.cuda()
-optim_c = optim.Adam(classifier.parameters(), lr=args.lr, betas=args.betas)
+if use_gpu: classifier.cuda()
+classifier.load_state_dict(torch.load(find_model(os.path.join('output_classifier', 'checkpoint')), map_location=device))
 progressbar = Progressbar()
-
-fixed_img_a, fixed_att_a = next(iter(valid_dataloader))
-fixed_img_a = fixed_img_a.cuda() if args.gpu else fixed_img_a
-fixed_att_a = fixed_att_a.cuda() if args.gpu else fixed_att_a
-fixed_att_a = fixed_att_a.type(torch.float)
-sample_att_b_list = [fixed_att_a]
-
-it = 0
-it_per_epoch = len(train_dataset) // args.batch_size
-for epoch in range(args.epochs):
-    # train with base lr in the first 100 epochs
-    # and half the lr in the last 100 epochs
-    lr = args.lr_base / (10 ** (epoch // 100))
-    for img_a, att_a in progressbar(train_dataloader):
-        classifier.train()
-        img_a = img_a.cuda() if args.gpu else img_a
-        att_a = att_a.cuda() if args.gpu else att_a
-        att_a = att_a.type(torch.float)
-        output = classifier(img_a)
-        prediction = (output >= 0.5)
-        acc = (prediction == att_a).sum().item()/(len(att_a)*len(attrs_default))
-        c_loss = F.binary_cross_entropy_with_logits(output, att_a)
-        classifier.zero_grad()
-        c_loss.backward()
-        optim_c.step()
-        progressbar.say(epoch=epoch, c_loss=c_loss.item(), acc=acc)
-
-    torch.save(classifier.state_dict(), os.path.join(
-        'output_classifier', args.experiment_name, 'checkpoint', 'weights.{:d}.pth'.format(epoch)
-    ))
+total = correct = 0
+for img_a, att_a in progressbar(valid_dataloader):
+    classifier.eval()
+    img_a = img_a.cuda() if use_gpu else img_a
+    att_a = att_a.cuda() if use_gpu else att_a
+    att_a = att_a.type(torch.float)
+    output = classifier(img_a)
+    prediction = (output >= 0.5)
+    correct += (prediction == att_a).sum().item()
+    total += (len(att_a)*len(attrs_default))
+    acc = correct/total
+    progressbar.say(acc=acc)

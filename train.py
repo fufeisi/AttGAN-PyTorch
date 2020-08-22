@@ -69,8 +69,8 @@ def parse(args=None):
     parser.add_argument('--test_int', dest='test_int', type=float, default=1.0)
     parser.add_argument('--n_samples', dest='n_samples', type=int, default=16, help='# of sample images')
     
-    parser.add_argument('--save_interval', dest='save_interval', type=int, default=1000)
-    parser.add_argument('--sample_interval', dest='sample_interval', type=int, default=1000)
+    parser.add_argument('--save_interval', dest='save_interval', type=int, default=5)
+    parser.add_argument('--sample_interval', dest='sample_interval', type=int, default=5)
     parser.add_argument('--gpu', dest='gpu', action='store_true')
     parser.add_argument('--multi_gpu', dest='multi_gpu', action='store_true')
     parser.add_argument('--experiment_name', dest='experiment_name', default=datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"))
@@ -160,30 +160,30 @@ for epoch in range(args.epochs):
         else:
             errG = attgan.trainG(img_a, att_a, att_a_, att_b, att_b_)
             add_scalar_dict(writer, errG, it+1, 'G')
-            progressbar.say(epoch=epoch, iter=it+1, d_loss=errD['d_loss'], g_loss=errG['g_loss'])
-        if (it + 1) % args.save_interval == 0:
-            # To save storage space, I only checkpoint the weights of G.
-            # If you'd like to keep weights of G, D, optim_G, optim_D,
-            # please use save() instead of saveG().
-            # attgan.saveG(os.path.join(
-            #     'output', args.experiment_name, 'checkpoint', 'weights.{:d}.pth'.format(epoch)
-            # ))
-            attgan.save(os.path.join(
-                'output', args.experiment_name, 'checkpoint', 'weights.{:d}.pth'.format(epoch)
-            ))
-        if (it + 1) % args.sample_interval == 0:
-            attgan.eval()
-            with torch.no_grad():
-                samples = [fixed_img_a]
-                for i, att_b in enumerate(sample_att_b_list):
-                    att_b_ = (att_b * 2 - 1) * args.thres_int
-                    if i > 0:
-                        att_b_[..., i - 1] = att_b_[..., i - 1] * args.test_int / args.thres_int
-                    samples.append(attgan.G(fixed_img_a, att_b_))
-                samples = torch.cat(samples, dim=3)
-                writer.add_image('sample', vutils.make_grid(samples, nrow=1, normalize=True, range=(-1., 1.)), it + 1)
-                vutils.save_image(samples, os.path.join(
-                    'output', args.experiment_name, 'sample_training',
-                    'Epoch_({:d})_({:d}of{:d}).jpg'.format(epoch, it % it_per_epoch + 1, it_per_epoch)
-                ), nrow=1, normalize=True, range=(-1., 1.))
         it += 1
+
+    if (epoch + 1) % args.save_interval == 0:
+        # To save storage space, I only checkpoint the weights of G.
+        # If you'd like to keep weights of G, D, optim_G, optim_D,
+        # please use save() instead of saveG().
+        # attgan.saveG(os.path.join(
+        #     'output', args.experiment_name, 'checkpoint', 'weights.{:d}.pth'.format(epoch)
+        # ))
+        attgan.save(os.path.join(
+            'output', args.experiment_name, 'checkpoint', 'weights.{:d}.pth'.format(epoch)
+        ))
+    if (epoch + 1) % args.sample_interval == 0:
+        attgan.eval()
+        with torch.no_grad():
+            samples = [fixed_img_a]
+            for i, att_b in enumerate(sample_att_b_list):
+                att_b_ = (att_b * 2 - 1) * args.thres_int
+                if i > 0:
+                    att_b_[..., i - 1] = att_b_[..., i - 1] * args.test_int / args.thres_int
+                samples.append(attgan.G(fixed_img_a, att_b_))
+            samples = torch.cat(samples, dim=3)
+            writer.add_image('sample', vutils.make_grid(samples, nrow=1, normalize=True, range=(-1., 1.)), it + 1)
+            vutils.save_image(samples, os.path.join(
+                'output', args.experiment_name, 'sample_training',
+                'Epoch_({:d})_({:d}of{:d}).jpg'.format(epoch, it % it_per_epoch + 1, it_per_epoch)
+            ), nrow=1, normalize=True, range=(-1., 1.))
