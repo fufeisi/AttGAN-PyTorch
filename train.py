@@ -58,7 +58,7 @@ def parse(args=None):
     parser.add_argument('--lambda_gp', dest='lambda_gp', type=float, default=10.0)
     
     parser.add_argument('--mode', dest='mode', default='wgan', choices=['wgan', 'lsgan', 'dcgan'])
-    parser.add_argument('--epochs', dest='epochs', type=int, default=50, help='# of epochs')
+    parser.add_argument('--epochs', dest='epochs', type=int, default=51, help='# of epochs')
     parser.add_argument('--batch_size', dest='batch_size', type=int, default=32)
     parser.add_argument('--num_workers', dest='num_workers', type=int, default=0)
     parser.add_argument('--lr', dest='lr', type=float, default=0.0002, help='learning rate')
