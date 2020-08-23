@@ -36,7 +36,7 @@ def parse(args=None):
     
     parser.add_argument('--img_size', dest='img_size', type=int, default=128)
     parser.add_argument('--shortcut_layers', dest='shortcut_layers', type=int, default=1)
-    parser.add_argument('--inject_layers', dest='inject_layers', type=int, default=0)
+    parser.add_argument('--inject_layers', dest='inject_layers', type=int, default=1)
     parser.add_argument('--enc_dim', dest='enc_dim', type=int, default=64)
     parser.add_argument('--dec_dim', dest='dec_dim', type=int, default=64)
     parser.add_argument('--dis_dim', dest='dis_dim', type=int, default=64)
@@ -86,6 +86,8 @@ if __name__ == '__main__':
     args.n_attrs = len(args.attrs)
     args.betas = (args.beta1, args.beta2)
     args.experiment_name = 'AttGAN_male'
+    args.gpu = torch.cuda.is_available()
+
     print(args)
 
     os.makedirs(join('output', args.experiment_name), exist_ok=True)
