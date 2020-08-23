@@ -88,7 +88,7 @@ train_dataset = CelebA(args.data_path, args.attr_path, args.img_size, 'train', a
 train_dataloader = data.DataLoader(
     train_dataset, batch_size=args.batch_size, num_workers=0, shuffle=True, drop_last=True)
 # load classifier
-classifier = Classifier(n_attrs=len(attrs_default))
+classifier = Classifier(n_attrs=2)
 if use_cuda: classifier.cuda()
 classifier.load_state_dict(torch.load(find_model(os.path.join('output_classifier', 'checkpoint')), map_location=device))
 classifier.eval()
