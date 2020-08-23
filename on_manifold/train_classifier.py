@@ -63,18 +63,19 @@ def parse(args=None):
     parser.add_argument('--save_interval', dest='save_interval', type=int, default=5)
     parser.add_argument('--sample_interval', dest='sample_interval', type=int, default=5)
     parser.add_argument('--multi_gpu', dest='multi_gpu', action='store_true')
-    parser.add_argument('--experiment_name', dest='experiment_name', default='classifier_eyeglass')
+    parser.add_argument('--experiment_name', dest='experiment_name', default='classifier_male')
     return parser.parse_args(args)
 
 
 use_gpu = torch.cuda.is_available()
-attrs_default = ['Eyeglasses']
+attrs_default = ['Male']
 args = parse()
 print(args)
 
 args.lr_base = args.lr
 args.n_attrs = len(args.attrs)
 args.betas = (args.beta1, args.beta2)
+args.experiment_name = 'classifier_male'
 
 os.makedirs(join('output_classifier', args.experiment_name), exist_ok=True)
 os.makedirs(join('output_classifier', args.experiment_name, 'checkpoint'), exist_ok=True)
