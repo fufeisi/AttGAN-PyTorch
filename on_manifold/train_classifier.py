@@ -112,6 +112,7 @@ for epoch in range(args.epochs):
         img_a = img_a.cuda() if use_gpu else img_a
         att_a = att_a.cuda() if use_gpu else att_a
         att_a = att_a.type(torch.float)
+        att_a = att_a.view(-1, len(attrs_default))
         output = classifier(img_a)
         prediction = (output >= 0.5)
         correct += (prediction == att_a).sum().item()
