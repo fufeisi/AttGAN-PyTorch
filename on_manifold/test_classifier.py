@@ -68,8 +68,9 @@ def parse(args=None):
 use_gpu = torch.cuda.is_available()
 device = torch.device('cuda' if use_gpu else 'cpu')
 
-attrs_default = ['Bald', 'Bangs', 'Black_Hair', 'Blond_Hair', 'Brown_Hair', 'Bushy_Eyebrows',
-                 'Eyeglasses', 'Male', 'Mouth_Slightly_Open', 'Mustache', 'No_Beard', 'Pale_Skin', 'Young']
+attrs_default = ['Eyeglasses', 'Male']
+# attrs_default = ['Bald', 'Bangs', 'Black_Hair', 'Blond_Hair', 'Brown_Hair', 'Bushy_Eyebrows',
+#                  'Eyeglasses', 'Male', 'Mouth_Slightly_Open', 'Mustache', 'No_Beard', 'Pale_Skin', 'Young']
 args = parse()
 print(args)
 train_dataset = CelebA(args.data_path, args.attr_path, args.img_size, 'train', args.attrs)
@@ -85,7 +86,7 @@ valid_dataloader = data.DataLoader(
 
 print('Testing images:', len(valid_dataset))
 
-classifier = Classifier()
+classifier = Classifier(n_attrs=len(attrs_default))
 if use_gpu: classifier.cuda()
 classifier.load_state_dict(torch.load(find_model(os.path.join('output_classifier', 'checkpoint')), map_location=device))
 progressbar = Progressbar()
