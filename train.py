@@ -21,7 +21,8 @@ from helpers import Progressbar, add_scalar_dict
 from tensorboardX import SummaryWriter
 
 
-attrs_default = ['Bald', 'Bangs', 'Black_Hair', 'Blond_Hair', 'Brown_Hair', 'Bushy_Eyebrows', 'Eyeglasses', 'Male', 'Mouth_Slightly_Open', 'Mustache', 'No_Beard', 'Pale_Skin', 'Young']
+attrs_default = ['Bald', 'Bangs', 'Black_Hair', 'Blond_Hair', 'Brown_Hair', 'Bushy_Eyebrows', 'Male',
+                 'Mouth_Slightly_Open', 'Mustache', 'No_Beard', 'Pale_Skin', 'Young']
 
 def parse(args=None):
     parser = argparse.ArgumentParser()
@@ -73,16 +74,15 @@ def parse(args=None):
     parser.add_argument('--sample_interval', dest='sample_interval', type=int, default=5)
     parser.add_argument('--gpu', dest='gpu', action='store_true')
     parser.add_argument('--multi_gpu', dest='multi_gpu', action='store_true')
-    parser.add_argument('--experiment_name', dest='experiment_name', default=datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"))
+    parser.add_argument('--experiment_name', dest='experiment_name', default='AttGAN_12')
     
     return parser.parse_args(args)
 
 args = parse()
-print(args)
-
 args.lr_base = args.lr
 args.n_attrs = len(args.attrs)
 args.betas = (args.beta1, args.beta2)
+print(args)
 
 os.makedirs(join('output', args.experiment_name), exist_ok=True)
 os.makedirs(join('output', args.experiment_name, 'checkpoint'), exist_ok=True)
@@ -166,12 +166,12 @@ for epoch in range(args.epochs):
         # To save storage space, I only checkpoint the weights of G.
         # If you'd like to keep weights of G, D, optim_G, optim_D,
         # please use save() instead of saveG().
-        # attgan.saveG(os.path.join(
-        #     'output', args.experiment_name, 'checkpoint', 'weights.{:d}.pth'.format(epoch)
-        # ))
-        attgan.save(os.path.join(
+        attgan.saveG(os.path.join(
             'output', args.experiment_name, 'checkpoint', 'weights.{:d}.pth'.format(epoch)
         ))
+        # attgan.save(os.path.join(
+        #     'output', args.experiment_name, 'checkpoint', 'weights.{:d}.pth'.format(epoch)
+        # ))
     if (epoch + 1) % args.sample_interval == 0:
         attgan.eval()
         with torch.no_grad():

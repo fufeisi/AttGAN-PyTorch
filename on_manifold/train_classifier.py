@@ -63,12 +63,12 @@ def parse(args=None):
     parser.add_argument('--save_interval', dest='save_interval', type=int, default=5)
     parser.add_argument('--sample_interval', dest='sample_interval', type=int, default=5)
     parser.add_argument('--multi_gpu', dest='multi_gpu', action='store_true')
-    parser.add_argument('--experiment_name', dest='experiment_name', default='classifier_eyeglass_and_male')
+    parser.add_argument('--experiment_name', dest='experiment_name', default='classifier_eyeglass')
     return parser.parse_args(args)
 
 
 use_gpu = torch.cuda.is_available()
-attrs_default = ['Eyeglasses', 'Male']
+attrs_default = ['Eyeglasses']
 args = parse()
 print(args)
 
