@@ -168,7 +168,7 @@ if __name__ == '__main__':
                 add_scalar_dict(writer, errG, it+1, 'G')
             it += 1
 
-        if (epoch + 1) % args.save_interval == 0:
+        if epoch % args.save_interval == 0:
             # To save storage space, I only checkpoint the weights of G.
             # If you'd like to keep weights of G, D, optim_G, optim_D,
             # please use save() instead of saveG().
@@ -178,7 +178,7 @@ if __name__ == '__main__':
             # attgan.save(os.path.join(
             #     'output', args.experiment_name, 'checkpoint', 'weights.{:d}.pth'.format(epoch)
             # ))
-        if (epoch + 1) % args.sample_interval == 0:
+        if epoch % args.sample_interval == 0:
             attgan.eval()
             with torch.no_grad():
                 samples = [fixed_img_a]
