@@ -94,7 +94,7 @@ classifier.load_state_dict(torch.load(find_model(os.path.join('output_classifier
 classifier.eval()
 # load AttGAN
 attgan = AttGAN(args)
-attgan.load(find_model(join('output', args.experiment_name, 'checkpoint')))
+attgan.load(find_model(join('../output', args.experiment_name, 'checkpoint')))
 attgan.eval()
 # load generator
 encoder, decoder = attgan.G.encoder, attgan.G.decoder
