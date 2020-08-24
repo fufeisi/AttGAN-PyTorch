@@ -19,10 +19,11 @@ from attgan import AttGAN
 from data import check_attribute_conflict
 from helpers import Progressbar, add_scalar_dict
 from tensorboardX import SummaryWriter
+from utils import find_model
 
 
-attrs_default = ['Bald', 'Bangs', 'Black_Hair', 'Blond_Hair', 'Brown_Hair', 'Bushy_Eyebrows', 'Eyeglasses',
-                 'Mouth_Slightly_Open', 'Mustache', 'No_Beard', 'Pale_Skin', 'Young']
+# attrs_default = ['Bald', 'Bangs', 'Black_Hair', 'Blond_Hair', 'Brown_Hair', 'Bushy_Eyebrows', 'Eyeglasses',
+#                  'Mouth_Slightly_Open', 'Mustache', 'No_Beard', 'Pale_Skin', 'Young']
 all_attrs = ['Arched_Eyebrows', 'Attractive', 'Bags_Under_Eyes', 'Bald', 'Bangs', 'Big_Lips', 'Big_Nose', 'Black_Hair',
                    'Blond_Hair', 'Blurry', 'Brown_Hair', 'Bushy_Eyebrows', 'Chubby', 'Double_Chin', 'Eyeglasses', 'Goatee',
                    'Gray_Hair', 'Heavy_Makeup', 'High_Cheekbones', 'Male', 'Mouth_Slightly_Open', 'Mustache', 'Narrow_Eyes',
@@ -33,6 +34,7 @@ attrs_ir_male = ['Bags_Under_Eyes', 'Bald', 'Big_Lips', 'Big_Nose', 'Black_Hair'
                  'Chubby', 'Double_Chin', 'Eyeglasses', 'Gray_Hair', 'High_Cheekbones', 'Mouth_Slightly_Open', 'Narrow_Eyes',
                  'Oval_Face', 'Pale_Skin', 'Pointy_Nose', 'Receding_Hairline', 'Rosy_Cheeks', 'Smiling', 'Straight_Hair', 'Wavy_Hair',
                  'Wearing_Hat', 'Wearing_Necktie', 'Young']
+attrs_default = attrs_ir_male
 
 
 def parse(args=None):
@@ -95,8 +97,9 @@ if __name__ == '__main__':
     args.lr_base = args.lr
     args.n_attrs = len(args.attrs)
     args.betas = (args.beta1, args.beta2)
-    args.experiment_name = 'AttGAN_male'
+    args.experiment_name = 'AttGAN_male_{}'.format(len(attrs_ir_male))
     args.gpu = torch.cuda.is_available()
+    args.continues = False
 
     print(args)
 
@@ -125,6 +128,8 @@ if __name__ == '__main__':
     print('Training images:', len(train_dataset), '/', 'Validating images:', len(valid_dataset))
 
     attgan = AttGAN(args)
+    if args.continues:
+        attgan.load(join('output', args.experiment_name, 'checkpoint', 'backup_weights.pth'))
     progressbar = Progressbar()
     writer = SummaryWriter(join('output', args.experiment_name, 'summary'))
 
@@ -179,6 +184,8 @@ if __name__ == '__main__':
                 progressbar.say(epoch=epoch, iter=it + 1, d_loss=errD['d_loss'], g_loss=errG['g_loss'])
             it += 1
 
+        attgan.save(os.path.join(
+            'output', args.experiment_name, 'checkpoint', 'backup_weights.pth'))
         if epoch % args.save_interval == 0:
             # To save storage space, I only checkpoint the weights of G.
             # If you'd like to keep weights of G, D, optim_G, optim_D,
