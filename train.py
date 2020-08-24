@@ -23,6 +23,16 @@ from tensorboardX import SummaryWriter
 
 attrs_default = ['Bald', 'Bangs', 'Black_Hair', 'Blond_Hair', 'Brown_Hair', 'Bushy_Eyebrows', 'Eyeglasses',
                  'Mouth_Slightly_Open', 'Mustache', 'No_Beard', 'Pale_Skin', 'Young']
+all_attrs = ['Arched_Eyebrows', 'Attractive', 'Bags_Under_Eyes', 'Bald', 'Bangs', 'Big_Lips', 'Big_Nose', 'Black_Hair',
+                   'Blond_Hair', 'Blurry', 'Brown_Hair', 'Bushy_Eyebrows', 'Chubby', 'Double_Chin', 'Eyeglasses', 'Goatee',
+                   'Gray_Hair', 'Heavy_Makeup', 'High_Cheekbones', 'Male', 'Mouth_Slightly_Open', 'Mustache', 'Narrow_Eyes',
+                   'No_Beard', 'Oval_Face', 'Pale_Skin', 'Pointy_Nose', 'Receding_Hairline', 'Rosy_Cheeks', 'Sideburns',
+                   'Smiling', 'Straight_Hair', 'Wavy_Hair', 'Wearing_Earrings', 'Wearing_Hat', 'Wearing_Lipstick', 'Wearing_Necklace',
+                   'Wearing_Necktie', 'Young']
+attrs_ir_male = ['Bags_Under_Eyes', 'Bald', 'Big_Lips', 'Big_Nose', 'Black_Hair', 'Blond_Hair', 'Brown_Hair', 'Bushy_Eyebrows',
+                 'Chubby', 'Double_Chin', 'Eyeglasses', 'Gray_Hair', 'High_Cheekbones', 'Mouth_Slightly_Open', 'Narrow_Eyes',
+                 'Oval_Face', 'Pale_Skin', 'Pointy_Nose', 'Receding_Hairline', 'Rosy_Cheeks', 'Smiling', 'Straight_Hair', 'Wavy_Hair',
+                 'Wearing_Hat', 'Wearing_Necktie', 'Young']
 
 
 def parse(args=None):
@@ -166,6 +176,7 @@ if __name__ == '__main__':
             else:
                 errG = attgan.trainG(img_a, att_a, att_a_, att_b, att_b_)
                 add_scalar_dict(writer, errG, it+1, 'G')
+                progressbar.say(epoch=epoch, iter=it + 1, d_loss=errD['d_loss'], g_loss=errG['g_loss'])
             it += 1
 
         if epoch % args.save_interval == 0:
